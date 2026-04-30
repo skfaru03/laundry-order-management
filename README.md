@@ -1,7 +1,7 @@
 # 🧺 CleanPress — Laundry Order Management System
 
 > A lightweight, production-ready order management system for dry cleaning stores.  
-> Built with **Node.js + Express**, **MongoDB + Mongoose**, and a **vanilla HTML/CSS/JS** frontend — no frontend framework required.
+> Built with **Node.js + Express**, **MongoDB + Mongoose**, and a **vanilla HTML/CSS/JS** frontend .
 
 ---
 
