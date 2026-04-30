@@ -1,0 +1,421 @@
+{
+  "info": {
+    "name": "CleanPress — Laundry Order Management API",
+    "description": "Complete API collection for the Laundry Order Management System.\n\nBase URL: http://localhost:3000/api\n\nHow to use:\n1. Run `npm start` in the project folder\n2. Import this file into Postman (File → Import)\n3. Set the `base_url` variable to http://localhost:3000/api\n4. Run requests in order — Create Order first, then copy the returned `id` into other requests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "PASTE_ORDER_ID_HERE",
+      "type": "string",
+      "description": "Replace with an actual order ID returned from the Create Order request"
+    }
+  ],
+  "item": [
+    {
+      "name": "Orders",
+      "description": "All order-related endpoints",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Ravi Kumar\",\n  \"phone\": \"9876543210\",\n  \"garments\": [\n    { \"type\": \"shirt\", \"quantity\": 2 },\n    { \"type\": \"pants\", \"quantity\": 1 },\n    { \"type\": \"saree\", \"quantity\": 1 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Creates a new laundry order.\n\n- `pricePerItem` is optional — auto-filled from the price list\n- `status` defaults to RECEIVED\n- `estimatedDelivery` is auto-set to 3 days from today\n- Returns the full order object including generated ID and total bill"
+          },
+          "response": [
+            {
+              "name": "201 — Order Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Order created successfully\",\n  \"data\": {\n    \"id\": \"664abc1234def56789\",\n    \"customerName\": \"Ravi Kumar\",\n    \"phone\": \"9876543210\",\n    \"garments\": [\n      { \"type\": \"shirt\",  \"quantity\": 2, \"pricePerItem\": 50 },\n      { \"type\": \"pants\",  \"quantity\": 1, \"pricePerItem\": 60 },\n      { \"type\": \"saree\",  \"quantity\": 1, \"pricePerItem\": 120 }\n    ],\n    \"totalAmount\": 280,\n    \"status\": \"RECEIVED\",\n    \"estimatedDelivery\": \"2026-05-03\",\n    \"createdAt\": \"2026-04-30T16:00:00.000Z\",\n    \"updatedAt\": \"2026-04-30T16:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "400 — Validation Failed",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"errors\": [\n    \"customerName is required.\",\n    \"garments must be a non-empty array.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Order — With Custom Price",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Priya Sharma\",\n  \"phone\": \"9123456780\",\n  \"garments\": [\n    { \"type\": \"lehenga\", \"quantity\": 1, \"pricePerItem\": 300 },\n    { \"type\": \"blouse\",  \"quantity\": 2 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Shows how to override the default price using `pricePerItem`. Lehenga is manually priced at ₹300; blouse uses the default ₹60."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Order — Missing Fields (Error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"\",\n  \"garments\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Demonstrates validation — missing phone and empty garments array returns 400 with field-level errors."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Returns all orders, newest first. No filters applied."
+          },
+          "response": [
+            {
+              "name": "200 — Orders List",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"2 order(s) found\",\n  \"data\": [\n    {\n      \"id\": \"664abc1234def56789\",\n      \"customerName\": \"Ravi Kumar\",\n      \"phone\": \"9876543210\",\n      \"totalAmount\": 280,\n      \"status\": \"RECEIVED\",\n      \"estimatedDelivery\": \"2026-05-03\",\n      \"createdAt\": \"2026-04-30T16:00:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Filter Orders — By Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders?status=RECEIVED",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "status", "value": "RECEIVED", "description": "RECEIVED | PROCESSING | READY | DELIVERED" }
+              ]
+            },
+            "description": "Filter orders by exact status. Case-insensitive."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Orders — By Customer Name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders?customerName=ravi",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "customerName", "value": "ravi", "description": "Partial match, case-insensitive" }
+              ]
+            },
+            "description": "Partial name match — 'ravi' matches 'Ravi Kumar'."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Orders — By Phone",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders?phone=9876",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "phone", "value": "9876", "description": "Partial phone match" }
+              ]
+            },
+            "description": "Partial phone number match."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Orders — By Garment Type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders?garmentType=saree",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "garmentType", "value": "saree", "description": "Matches orders containing this garment" }
+              ]
+            },
+            "description": "Returns orders that contain at least one garment matching the given type. Bonus search feature."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Orders — Combined Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders?search=ravi",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "search", "value": "ravi", "description": "Matches name OR phone OR garment type" }
+              ]
+            },
+            "description": "Combined shorthand search — matches against customer name, phone, or any garment type in the order."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Orders — Multiple Params Combined",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders?status=RECEIVED&customerName=ravi",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                { "key": "status", "value": "RECEIVED" },
+                { "key": "customerName", "value": "ravi" }
+              ]
+            },
+            "description": "All filter params are combinable. This returns RECEIVED orders where customer name contains 'ravi'."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}"]
+            },
+            "description": "Fetch a single order by its ID. Replace `{{order_id}}` with a real ID from Create Order response."
+          },
+          "response": [
+            {
+              "name": "404 — Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Order with ID \\\"664abc1234def56789\\\" not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Status — RECEIVED → PROCESSING",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PROCESSING\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Moves the order to the next status. Run this after Create Order.\n\nValid flow: RECEIVED → PROCESSING → READY → DELIVERED"
+          },
+          "response": [
+            {
+              "name": "200 — Status Updated",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Status updated: RECEIVED → PROCESSING\",\n  \"data\": { \"id\": \"664abc\", \"status\": \"PROCESSING\", \"...\" : \"...\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Status — PROCESSING → READY",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"READY\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Move to READY — order is clean and waiting for pickup."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status — READY → DELIVERED",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DELIVERED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Final status — order handed to customer. This order now counts toward revenue."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status — Skip Step (Error 422)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DELIVERED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Demonstrates transition validation. If the order is at RECEIVED and you try to jump to DELIVERED, you get a 422 error."
+          },
+          "response": [
+            {
+              "name": "422 — Cannot Skip Status",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Cannot skip status steps. \\\"RECEIVED\\\" must go to \\\"PROCESSING\\\" next.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Status — Invalid Value (Error 400)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CANCELLED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Sending an invalid status value returns a 400 with the list of valid statuses."
+          },
+          "response": [
+            {
+              "name": "400 — Invalid Status",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid status \\\"CANCELLED\\\". Must be one of: RECEIVED, PROCESSING, READY, DELIVERED\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}"]
+            },
+            "description": "Permanently deletes an order. Returns 404 if the ID doesn't exist."
+          },
+          "response": [
+            {
+              "name": "200 — Deleted",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Order deleted successfully\",\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Aggregated stats for the store dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard"]
+            },
+            "description": "Returns:\n- `totalOrders` — all orders ever created\n- `totalRevenue` — sum of DELIVERED orders only\n- `ordersPerStatus` — count in each status bucket\n- `recentOrders` — last 5 orders (bonus)"
+          },
+          "response": [
+            {
+              "name": "200 — Dashboard Data",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Dashboard data fetched\",\n  \"data\": {\n    \"totalOrders\": 15,\n    \"totalRevenue\": 4800,\n    \"ordersPerStatus\": {\n      \"RECEIVED\":   3,\n      \"PROCESSING\": 5,\n      \"READY\":      4,\n      \"DELIVERED\":  3\n    },\n    \"recentOrders\": [\n      {\n        \"id\": \"664abc\",\n        \"customerName\": \"Ravi Kumar\",\n        \"totalAmount\": 280,\n        \"status\": \"RECEIVED\",\n        \"createdAt\": \"2026-04-30T16:00:00.000Z\"\n      }\n    ]\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

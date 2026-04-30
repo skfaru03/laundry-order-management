@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CleanPress — Laundry Order Management</title>
+  <meta name="description" content="A modern laundry order management system for dry cleaning stores. Create orders, track status, and manage billing with ease." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🧺</div>
+      <div class="brand-text">
+        <span class="brand-name">CleanPress</span>
+        <span class="brand-sub">Order Management</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-page="orders" id="nav-orders">
+        <span class="nav-icon">📋</span>
+        <span>All Orders</span>
+      </a>
+      <a href="#" class="nav-item" data-page="create" id="nav-create">
+        <span class="nav-icon">➕</span>
+        <span>New Order</span>
+      </a>
+      <a href="#" class="nav-item" data-page="prices" id="nav-prices">
+        <span class="nav-icon">💰</span>
+        <span>Price List</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-dot online"></div>
+      <span>System Online</span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main">
+    <!-- Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">☰</button>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="clock"></div>
+        <button class="btn btn-primary" onclick="navigateTo('create')">+ New Order</button>
+      </div>
+    </header>
+
+    <!-- Pages -->
+    <div class="page-container">
+
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <section class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card" id="stat-total">
+            <div class="stat-icon">📦</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-total-val">—</div>
+              <div class="stat-label">Total Orders</div>
+            </div>
+          </div>
+          <div class="stat-card revenue" id="stat-revenue">
+            <div class="stat-icon">💵</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-revenue-val">—</div>
+              <div class="stat-label">Total Revenue</div>
+            </div>
+          </div>
+          <div class="stat-card" id="stat-pending">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-pending-val">—</div>
+              <div class="stat-label">Pending (Not Delivered)</div>
+            </div>
+          </div>
+          <div class="stat-card delivered" id="stat-delivered">
+            <div class="stat-icon">✅</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-delivered-val">—</div>
+              <div class="stat-label">Delivered</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status breakdown -->
+        <div class="section-grid">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Orders by Status</h2>
+            </div>
+            <div class="status-bars" id="statusBars"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Recent Orders</h2>
+              <button class="btn btn-ghost" onclick="navigateTo('orders')">View All →</button>
+            </div>
+            <div id="recentOrdersList" class="recent-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ALL ORDERS PAGE ===== -->
+      <section class="page" id="page-orders">
+        <div class="filters-bar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by name, phone, garment…" />
+          </div>
+          <div class="filter-chips" id="filterChips">
+            <button class="chip active" data-status="">All</button>
+            <button class="chip" data-status="RECEIVED">Received</button>
+            <button class="chip" data-status="PROCESSING">Processing</button>
+            <button class="chip" data-status="READY">Ready</button>
+            <button class="chip" data-status="DELIVERED">Delivered</button>
+          </div>
+        </div>
+        <div id="ordersTable" class="orders-table-wrapper">
+          <div class="empty-state">Loading orders…</div>
+        </div>
+      </section>
+
+      <!-- ===== CREATE ORDER PAGE ===== -->
+      <section class="page" id="page-create">
+        <div class="form-wrapper">
+          <div class="card form-card">
+            <div class="card-header">
+              <h2 class="card-title">🧾 Create New Order</h2>
+              <p class="card-sub">Fill in customer details and garments</p>
+            </div>
+
+            <form id="createOrderForm" novalidate>
+              <div class="form-section">
+                <h3 class="form-section-title">Customer Information</h3>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="customerName">Customer Name *</label>
+                    <input type="text" id="customerName" placeholder="e.g. Ravi Kumar" required />
+                    <span class="field-error" id="err-customerName"></span>
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" placeholder="e.g. 9876543210" required />
+                    <span class="field-error" id="err-phone"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="form-section-title">Garments</h3>
+                <div id="garmentsList"></div>
+                <button type="button" class="btn btn-outline" id="addGarmentBtn" onclick="addGarmentRow()">
+                  + Add Garment
+                </button>
+              </div>
+
+              <div class="order-summary" id="orderSummary" style="display:none;">
+                <h3 class="summary-title">Order Summary</h3>
+                <div id="summaryItems"></div>
+                <div class="summary-total">
+                  <span>Estimated Total</span>
+                  <span id="summaryTotal" class="total-amount">₹0</span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-ghost" onclick="resetForm()">Clear</button>
+                <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                  Create Order
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PRICE LIST PAGE ===== -->
+      <section class="page" id="page-prices">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">💰 Garment Price List</h2>
+            <p class="card-sub">Standard pricing per item</p>
+          </div>
+          <div class="price-grid" id="priceGrid"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Success Overlay after Order Creation -->
+  <div class="success-overlay" id="successOverlay" style="display:none;">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <h2>Order Created!</h2>
+      <div class="success-details" id="successDetails"></div>
+      <div class="success-actions">
+        <button class="btn btn-ghost" onclick="closeSuccess()">Create Another</button>
+        <button class="btn btn-primary" onclick="navigateTo('orders'); closeSuccess()">View Orders</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
