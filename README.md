@@ -5,17 +5,17 @@
 
 ---
 
-## 📌 Project Overview
+## 📌 Why I Built This
 
-CleanPress solves a real problem: most small dry-cleaning stores manage orders with pen and paper or basic spreadsheets, leading to lost orders, billing mistakes, and no visibility into business performance.
+I built CleanPress because I noticed a real problem: most small dry-cleaning stores near me still manage their daily orders using pen and paper or clunky spreadsheets. This leads to lost clothes, billing mistakes, and absolutely zero visibility into how their business is actually performing.
 
-This system provides:
-- A **REST API** for full order lifecycle management
-- A **browser-based dashboard** accessible from any device on the network
-- **Persistent storage** via MongoDB (data survives server restarts)
-- **Zero-friction setup** — one command to install, one to run
+I wanted to build a lightweight, no-nonsense system to fix this. It provides:
+- A **REST API** to handle the entire lifecycle of a laundry order.
+- A **browser-based dashboard** that the shop owner can open on any device (even an iPad at the counter).
+- **Persistent storage** via MongoDB so nothing gets lost when the power goes out.
+- **Zero-friction setup** — I made sure it only takes one command to install and run.
 
-The project was built as part of a 72-hour assignment demonstrating **AI-first development** — using AI tools to scaffold, generate, and iterate on code rapidly, then applying human judgment to fix, improve, and polish.
+I put this together over a weekend (roughly 72 hours) for an assignment focused on **AI-first development**. My goal was to see how fast I could build a production-ready app by heavily using AI tools for the scaffolding, while relying on my own engineering judgment to fix bugs, refactor the architecture, and polish the user experience.
 
 ---
 
@@ -516,26 +516,27 @@ Click **Create Web Service**. Your app will be live at:
 
 ---
 
-## ⚖️ Tradeoffs
+## ⚖️ Tradeoffs & My Thought Process
+
+When you only have 72 hours, you have to make some tough calls. Here is why I built things the way I did:
 
 ### Deliberate Decisions
 
-| Decision | Reason |
+| Decision | Why I did it |
 |---|---|
-| **In-memory → MongoDB** (bonus) | Persistence makes the system actually useful beyond demo |
-| **No frontend framework** | Avoids build pipeline complexity; simpler to run and review |
-| **Embedded garments in order** | Garments don't exist independently — embedding is the correct MongoDB pattern here |
-| **Transition validation in controller, not model** | Controllers handle business rules; models handle data — clean separation |
-| **No authentication** | Out of scope for the assignment; would be first thing added in production |
+| **Moving from In-memory to MongoDB** | Storing data in memory is fine for a quick demo, but I wanted this app to be actually usable in the real world. Losing all orders on a server restart is unacceptable. |
+| **Vanilla HTML/JS instead of React** | I love React, but for a simple CRUD dashboard, a build step (Webpack/Vite) felt like overkill. I wanted a zero-dependency frontend that anyone could just open and run. |
+| **Embedding garments in the order schema** | I thought about making a separate `Garments` collection, but garments don't exist independently of an order. Embedding them is the correct NoSQL pattern and makes queries way faster. |
+| **Status validation in the controller** | I kept my Mongoose models strictly for database operations and put business logic (like checking if you can skip from `RECEIVED` to `DELIVERED`) in the controllers. Clean separation of concerns. |
+| **No Authentication** | Building a secure login system takes time. I skipped it to focus entirely on perfecting the order management flow, though it would definitely be the very next thing I add. |
 
-### What Was Skipped
+### Things I Purposely Skipped
 
-| Feature | Why Skipped |
+| Feature | Why I skipped it |
 |---|---|
-| Pagination | Low order volume for a single store; all results fit on one page |
-| Unit tests | Time constraint; manual testing via UI and API was sufficient |
-| Authentication / login | Not required by the spec |
-| Real-time updates (WebSocket) | Polling on page navigation is adequate for this use case |
+| **Pagination** | A single neighborhood store usually doesn't have thousands of active orders at once. Fetching all active orders is perfectly fine for this scale. |
+| **Automated Testing (Jest)** | Manual API testing via Postman and the UI was faster for this tight deadline. |
+| **WebSockets for real-time updates** | Polling the API when you navigate between pages is more than adequate for this use case. |
 
 ---
 
